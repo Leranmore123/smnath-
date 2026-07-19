@@ -1,0 +1,135 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Profile Settings{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        font-size: 14px;
+        color: var(--text-color);
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px;
+        background-color: rgba(11, 19, 43, 0.4);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: #fff;
+        font-size: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 10px rgba(59, 130, 246, 0.15);
+    }
+
+    textarea.form-control {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    @media (max-width: 768px) {
+        .profile-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 25px;">
+    <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 5px;">Profile Settings</h2>
+    <p style="color: var(--text-muted); font-size: 14px;">Manage your account details and update credentials.</p>
+</div>
+
+<div class="profile-grid">
+    <!-- Edit profile details -->
+    <div class="card">
+        <div class="card-title">
+            <i class="fa-solid fa-user-pen" style="color: var(--primary);"></i> Edit Personal Details
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label" for="member_id">Member ID (Read-only)</label>
+                <input type="text" id="member_id" class="form-control" value="{{ user.profile.member_id }}" readonly style="background-color: rgba(255, 255, 255, 0.05); color: var(--accent); font-weight: 600;">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="email">Email Address (Read-only)</label>
+                <input type="email" id="email" class="form-control" value="{{ user.email }}" readonly style="background-color: rgba(255, 255, 255, 0.05); color: var(--text-muted);">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="full_name">Full Name</label>
+                <input type="text" name="full_name" id="full_name" class="form-control" value="{{ user.first_name }}" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="mobile_number">Mobile Number</label>
+                <input type="text" name="mobile_number" id="mobile_number" class="form-control" value="{{ user.profile.mobile_number }}" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="state">State</label>
+                <input type="text" name="state" id="state" class="form-control" value="{{ user.profile.state }}" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="address">Full Delivery Address</label>
+                <textarea name="address" id="address" class="form-control" required>{{ user.profile.address }}</textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                <i class="fa-solid fa-floppy-disk"></i> Save Profile Details
+            </button>
+        </form>
+    </div>
+
+    <!-- Update password -->
+    <div class="card">
+        <div class="card-title">
+            <i class="fa-solid fa-key" style="color: var(--accent);"></i> Change Password
+        </div>
+
+        <form method="POST" action="{% url 'change_password' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label" for="old_password">Current Password</label>
+                <input type="password" name="old_password" id="old_password" class="form-control" placeholder="Enter current password" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="new_password">New Password</label>
+                <input type="password" name="new_password" id="new_password" class="form-control" placeholder="Create new password" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="confirm_password">Confirm New Password</label>
+                <input type="password" name="confirm_password" id="confirm_password" class="form-control" placeholder="Confirm new password" required>
+            </div>
+
+            <button type="submit" class="btn btn-accent" style="width: 100%;">
+                <i class="fa-solid fa-circle-check"></i> Update Password
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

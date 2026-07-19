@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PAN Card Print - {{ app.full_name|upper }}</title>
+  <style>
+    @page { size: A4; margin: 0; }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #f5f7fb;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+      font-family: Arial, sans-serif;
+    }
+
+    .a4-sheet {
+      width: 210mm;
+      height: 297mm;
+      position: relative;
+      background: url("https://www.pksevaone.com/retailer/dlcard/pan.png") no-repeat center / cover;
+      padding: 10mm;
+      overflow: hidden;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.18);
+    }
+
+    .text {
+      position: absolute;
+      font-weight: bold;
+      font-size: 8pt;
+      color: #2b1e1e;
+      text-transform: uppercase;
+    }
+
+    .code {
+      position: absolute;
+      font-weight: bold;
+      font-size: 16px;
+      color: #2b1e1e;
+      text-transform: uppercase;
+    }
+
+    .photo-container, .signature-container {
+      position: absolute;
+    }
+
+    .photo-container img, .signature-container img {
+      display: block;
+      image-rendering: -webkit-optimize-contrast;
+    }
+
+    .controls {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 1000;
+    }
+
+    .btn {
+      background: #007cba;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 3px;
+      font-size: 12px;
+    }
+
+    .btn:hover { background: #005a87; }
+
+    .no-photo, .no-signature {
+      border: 2px dashed #ccc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #666;
+      font-size: 10px;
+      text-align: center;
+    }
+
+    @media print {
+      .controls { display: none !important; }
+      body { display: block; background: transparent; }
+      .a4-sheet {
+        margin: 0 auto;
+        box-shadow: none;
+        padding: 10mm;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="controls">
+    <button class="btn" onclick="window.print()">🖨️ Print</button>
+    <button class="btn" onclick="location.reload()">🔄 Refresh</button>
+  </div>
+
+  <div class="a4-sheet">
+    <!-- ============================================ -->
+    <!-- ALL DATA IS NOW DYNAMIC (from Django context) -->
+    <!-- ============================================ -->
+
+    <!-- Name - Bottom -->
+    <div class="text" style="top:261mm; left:26mm;">{{ app.full_name|upper }}</div>
+    
+    <!-- Name - Top -->
+    <div class="text" style="top:70mm; left:66mm;font-size: 18px;">{{ app.full_name|upper }}</div>
+
+    <!-- DOB - Bottom -->
+    <div class="text" style="top:277mm; left:26mm;">{{ app.dob|date:"d/m/Y" }}</div>
+    
+    <!-- DOB - Top -->
+    <div class="text" style="top:105mm; left:66mm;font-size: 18px;">{{ app.dob|date:"d/m/Y" }}</div>
+
+    <!-- Father Name - Bottom -->
+    <div class="text" style="top:268mm; left:26mm;">{{ app.father_name|upper }}</div>
+    
+    <!-- Father Name - Top -->
+    <div class="text" style="top:87mm; left:66mm;font-size: 18px;">{{ app.father_name|upper }}</div>
+    
+    <!-- Gender - Top -->
+    <div class="text" style="top:122mm; left:66mm;font-size: 18px;">{{ app.gender|upper }}</div>
+
+    <!-- Photo - Bottom -->
+    <div class="photo-container" style="top:242mm; left:26mm; width:62px; height:62px;">
+      {% if app.photo %}
+        <img src="{{ app.photo.url }}" alt="photo" style="width:57px; height:59px;" 
+             onerror="this.parentElement.innerHTML='<div class=\'no-photo\' style=\'width:62px;height:62px;\'>Photo Error</div>'">
+      {% else %}
+        <div class="no-photo" style="width:62px;height:62px;">No Photo</div>
+      {% endif %}
+    </div>
+    
+    <!-- Photo - Top -->
+    <div class="photo-container" style="top:144mm; left:20mm; width:116px; height:119px;">
+      {% if app.photo %}
+        <img src="{{ app.photo.url }}" alt="photo" style="width:116px; height:119px;"
+             onerror="this.parentElement.innerHTML='<div class=\'no-photo\' style=\'width:116px;height:119px;\'>Photo Error</div>'">
+      {% else %}
+        <div class="no-photo" style="width:116px;height:119px;">No Photo</div>
+      {% endif %}
+    </div>
+
+    <!-- PAN Number - Bottom -->
+    <div class="code" style="top:250mm; left:47mm;">{{ app.pan_number }}</div>
+    
+    <!-- PAN Number - Top -->
+    <div class="code" style="top:54mm; left:92mm; font-size: 22px;">{{ app.pan_number }}</div>
+
+    <!-- Signature - Bottom -->
+    <div class="signature-container" style="top:260mm; left:52mm; width:60px; height:110px;">
+      {% if app.signature %}
+        <img src="{{ app.signature.url }}" alt="signature" style="width:50px; height:105px; object-fit:contain;"
+             onerror="this.parentElement.innerHTML='<div class=\'no-signature\' style=\'width:60px;height:45px;\'>Signature Error</div>'">
+      {% else %}
+        <div class="no-signature" style="width:60px;height:45px;">No Sig</div>
+      {% endif %}
+    </div>
+    
+    <!-- Signature - Top -->
+    <div class="signature-container"
+     style="top:194mm; left:76mm; width:85px; height:32px;">
+  {% if app.signature %}
+    <img src="{{ app.signature.url }}"
+         alt="signature"
+         style="width:85px;height:32px;object-fit:contain;object-position:center;">
+  {% else %}
+    <div class="no-signature" style="width:85px;height:32px;">No Sig</div>
+  {% endif %}
+</div>
+  </div>
+</body>
+</html>

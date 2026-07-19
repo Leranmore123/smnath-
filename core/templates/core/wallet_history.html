@@ -1,0 +1,77 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Wallet Transaction Log{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+    <div>
+        <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 5px;">Wallet Transaction Log</h2>
+        <p style="color: var(--text-muted); font-size: 14px;">History of all recharge request credits on your account.</p>
+    </div>
+    <a href="{% url 'wallet' %}" class="btn btn-primary">
+        <i class="fa-solid fa-circle-plus"></i> Recharge Wallet
+    </a>
+</div>
+
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+        <div class="card-title" style="margin-bottom: 0;">
+            <i class="fa-solid fa-clock-rotate-left" style="color: var(--accent);"></i> Credit Logs
+        </div>
+        
+        <!-- Status filter links -->
+        <div style="display: flex; gap: 10px; font-size: 13px;">
+            <a href="{% url 'wallet_history' %}" class="btn btn-secondary {% if not status_filter %}active{% endif %}" style="padding: 6px 12px; font-size: 12px;">All</a>
+            <a href="{% url 'wallet_history' %}?status=PENDING" class="btn btn-secondary {% if status_filter == 'PENDING' %}active{% endif %}" style="padding: 6px 12px; font-size: 12px; border-color: rgba(245, 158, 11, 0.3);">Pending</a>
+            <a href="{% url 'wallet_history' %}?status=APPROVED" class="btn btn-secondary {% if status_filter == 'APPROVED' %}active{% endif %}" style="padding: 6px 12px; font-size: 12px; border-color: rgba(16, 185, 129, 0.3);">Approved</a>
+            <a href="{% url 'wallet_history' %}?status=REJECTED" class="btn btn-secondary {% if status_filter == 'REJECTED' %}active{% endif %}" style="padding: 6px 12px; font-size: 12px; border-color: rgba(239, 68, 68, 0.3);">Rejected</a>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Date & Time</th>
+                    <th>Method</th>
+                    <th>Transaction Reference (UTR)</th>
+                    <th>Before Balance</th>
+                    <th>After Balance</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for request in requests %}
+                    <tr>
+                        <td style="font-weight: 600; font-family: monospace;">{{ request.order_id }}</td>
+                        <td>{{ request.created_at|date:"Y-m-d H:i" }}</td>
+                        <td>{{ request.payment_method }}</td>
+                        <td style="font-family: monospace;">{{ request.transaction_id_utr|default:"-" }}</td>
+                        <td>₹{{ request.balance_before }}</td>
+                        <td>
+                            {% if request.balance_after is not none %}
+                                ₹{{ request.balance_after }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td style="font-weight: 700; color: var(--accent);">+₹{{ request.amount }}</td>
+                        <td>
+                            <span class="badge badge-{{ request.status|lower }}">{{ request.get_status_display }}</span>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 40px;">
+                            <i class="fa-regular fa-folder-open" style="font-size: 30px; display: block; margin-bottom: 10px;"></i>
+                            No wallet transactions found.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ration Card Layout - SM Sevaone</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .cards-container {
+            display: flex;
+            gap: 20px;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+        .card {
+            width: 420px;
+            height: 280px;
+            border: 2px solid #3f652a;
+            border-radius: 6px;
+            padding: 10px;
+            box-sizing: border-box;
+            background-color: #fff;
+            position: relative;
+            font-size: 10px;
+            color: #333;
+        }
+        /* Left Card Styles */
+        .left-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .left-card-header {
+            text-align: center;
+            font-weight: bold;
+            border-bottom: 2px solid #3f652a;
+            padding-bottom: 5px;
+            margin-bottom: 5px;
+            color: #3f652a;
+        }
+        .members-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-gap: 5px;
+            flex-grow: 1;
+        }
+        .member-cell {
+            border: 1px solid #ddd;
+            padding: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 4px;
+        }
+        .member-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .member-info span {
+            font-size: 8px;
+        }
+        .member-info .name-kn {
+            font-weight: bold;
+        }
+        .member-photo {
+            width: 30px;
+            height: 35px;
+            border-radius: 2px;
+            object-fit: cover;
+            border: 1px solid #ccc;
+        }
+        .left-card-footer {
+            background-color: #f1f8ee;
+            border: 1px solid #d4ecd5;
+            padding: 4px;
+            text-align: center;
+            font-size: 7px;
+            border-radius: 4px;
+            margin-top: 5px;
+            line-height: 1.2;
+        }
+        
+        /* Right Card Styles */
+        .right-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .right-card-header {
+            background-color: #3f652a;
+            color: white;
+            padding: 5px;
+            border-radius: 4px 4px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header-left {
+            font-weight: bold;
+        }
+        .header-center {
+            text-align: center;
+        }
+        .header-center div {
+            font-size: 8px;
+        }
+        .header-right {
+            text-align: right;
+            font-size: 7px;
+        }
+        .meta-bar {
+            background-color: #aabd9d;
+            padding: 3px 5px;
+            font-size: 8px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+        }
+        .rc-no-bar {
+            padding: 3px 5px;
+            font-weight: bold;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+        .holder-info {
+            display: flex;
+            padding: 5px;
+            gap: 10px;
+        }
+        .holder-photo {
+            width: 45px;
+            height: 55px;
+            border: 1px solid #ccc;
+            object-fit: cover;
+            border-radius: 2px;
+        }
+        .holder-details {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 2px;
+            width: calc(100% - 55px);
+        }
+        .holder-details .name {
+            font-weight: bold;
+            font-size: 11px;
+        }
+        .family-count-bar {
+            background-color: #e2ede0;
+            padding: 3px 5px;
+            font-weight: bold;
+            font-size: 8px;
+            border-top: 1px solid #3f652a;
+            border-bottom: 1px solid #3f652a;
+            display: flex;
+            justify-content: space-between;
+        }
+        .additional-details {
+            padding: 5px;
+            font-size: 7px;
+            line-height: 1.3;
+        }
+        .disclaimer {
+            font-size: 7px;
+            text-align: center;
+            color: #777;
+            margin-top: 15px;
+            width: 860px;
+            line-height: 1.4;
+        }
+        
+        @media print {
+            body {
+                background-color: white;
+                height: auto;
+                padding: 0;
+            }
+            .cards-container {
+                box-shadow: none;
+                padding: 0;
+            }
+            .disclaimer {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div style="display: flex; flex-direction: column; align-items: center;">
+        <div class="cards-container">
+            <!-- LEFT CARD -->
+            <div class="card left-card">
+                <div>
+                    <div class="left-card-header">
+                        ಕುಟುಂಬದ ಸದಸ್ಯರ ವಿವರಗಳು<br>
+                        Family Member's Detail
+                    </div>
+                    <div class="members-grid">
+                        {% for m in card.members %}
+                            <div class="member-cell">
+                                <div class="member-info">
+                                    <span class="name-kn">{{ m.name_kn }}</span>
+                                    <span>{{ m.name_en }}</span>
+                                    <span style="color: #777;">{{ m.relation }}</span>
+                                </div>
+                                <img class="member-photo" src="{{ m.photo }}" alt="photo">
+                            </div>
+                        {% endfor %}
+                        
+                        <!-- Fill remaining cells up to 6 -->
+                        {% if card.members|length < 6 %}
+                            <div class="member-cell" style="border: 1px dashed #eee;"></div>
+                            <div class="member-cell" style="border: 1px dashed #eee;"></div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="left-card-footer">
+                    ಪಾವತಿಸಿದ ವ್ಯವಸ್ಥೆಯ ಬಗ್ಗೆ ಹೆಚ್ಚಿನ ಮಾಹಿತಿಗಾಗಿ ಸಂಪರ್ಕಿಸಿ:<br>
+                    Helpline: 1967, 14445 or 1800-425-9339 | Website: https://ahara.karnataka.gov.in
+                </div>
+            </div>
+            
+            <!-- RIGHT CARD -->
+            <div class="card right-card">
+                <div>
+                    <div class="right-card-header">
+                        <div class="header-left">
+                            PHH<br>
+                            <span style="font-size: 8px;">{{ card.ack_no }}</span>
+                        </div>
+                        <div class="header-center">
+                            <span style="font-size: 8px;">ಕರ್ನಾಟಕ ಸರ್ಕಾರ</span><br>
+                            <span style="font-weight: bold; font-size: 9px;">GOVERNMENT OF KARNATAKA</span>
+                            <div style="font-size: 7px;">Food & Civil Supplies Department</div>
+                        </div>
+                        <div class="header-right">
+                            ಆದ್ಯತ ಕುಟುಂಬ<br>
+                            Not Eligible for Kerosene
+                        </div>
+                    </div>
+                    
+                    <div class="meta-bar">
+                        <span>Taluk: {{ card.taluk }}</span>
+                        <span>District: {{ card.district }}</span>
+                    </div>
+                    
+                    <div class="rc-no-bar">
+                        Ration Card No.: <span style="color: #c0392b; font-size: 11px;">{{ card.card_number }}</span>
+                    </div>
+                    
+                    <div class="holder-info">
+                        <img class="holder-photo" src="https://randomuser.me/api/portraits/women/12.jpg" alt="holder">
+                        <div class="holder-details">
+                            <div class="name">{{ card.owner_en }}</div>
+                            <div style="font-size: 9px; color: #555;">{{ card.owner_kn }}</div>
+                            <div style="font-size: 7px; color: #777; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Address: {{ card.address_en }}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="family-count-bar">
+                        <span>Family Members:</span>
+                        <span>{{ card.members|length }}</span>
+                    </div>
+                    
+                    <div class="additional-details">
+                        <strong>Gas Details:</strong> Consumer No. & Name: - | Distributor Name: -<br>
+                        <strong>FPS Details:</strong> {{ card.fps_name }}<br>
+                        <strong>Office Details:</strong> Office Phone: 080-27745454 | Panchayat: {{ card.panchayat }} | Village: {{ card.village }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="disclaimer">
+            Disclaimer: This Ration card is issued only for the purpose of drawing entitled quantity of Food grains from the Fair Price shop by the card holder. The Personal details of the card holder are based on self declaration of the card holder. The department of Food, Civil Supplies and Consumer Affairs Department, does not certify the correctness of the particulars furnished.
+        </div>
+    </div>
+</body>
+</html>

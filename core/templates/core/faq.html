@@ -1,0 +1,165 @@
+{% extends 'core/base.html' %}
+
+{% block title %}FAQ & Support{% endblock %}
+
+{% block extra_css %}
+<style>
+    .faq-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .faq-item {
+        background-color: var(--card-color);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        margin-bottom: 15px;
+        overflow: hidden;
+        transition: all 0.2s ease;
+    }
+
+    .faq-item:hover {
+        border-color: var(--primary);
+    }
+
+    .faq-question {
+        padding: 20px;
+        font-weight: 600;
+        font-size: 15px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        user-select: none;
+        color: #fff;
+    }
+
+    .faq-answer {
+        padding: 0 20px 20px;
+        font-size: 14px;
+        color: var(--text-muted);
+        line-height: 1.6;
+        display: none;
+        border-top: 1px solid var(--border-color);
+        padding-top: 15px;
+    }
+
+    .faq-item.active .faq-answer {
+        display: block;
+        animation: slideDown 0.2s ease;
+    }
+
+    .faq-question i {
+        font-size: 16px;
+        transition: transform 0.2s ease;
+        color: var(--primary);
+    }
+
+    .faq-item.active .faq-question i {
+        transform: rotate(180deg);
+        color: var(--accent);
+    }
+
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .support-box {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(0, 245, 212, 0.05) 100%);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 30px;
+        text-align: center;
+        margin-top: 40px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 25px; text-align: center;">
+    <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 5px;">Frequently Asked Questions</h2>
+    <p style="color: var(--text-muted); font-size: 14px;">Find quick answers about wallet top-ups, printing durations, and refund processing.</p>
+</div>
+
+<div class="faq-container">
+    <div class="faq-item">
+        <div class="faq-question">
+            <span>How long does it take for manual government services to process?</span>
+            <i class="fa-solid fa-chevron-down"></i>
+        </div>
+        <div class="faq-answer">
+            Manual applications (such as Senior Citizen Card, Gruha Lakshmi Sanction Order, RTC land documents, tailoring certificate, etc.) are processed by our admin agents within 12 to 24 hours. Once completed, a high-quality PDF will be uploaded directly to your service logs, and you will be able to download it with a single click.
+        </div>
+    </div>
+
+    <div class="faq-item">
+        <div class="faq-question">
+            <span>How do instant print services work?</span>
+            <i class="fa-solid fa-chevron-down"></i>
+        </div>
+        <div class="faq-answer">
+            Instant print services (e.g. PAN card downloads, Voter ID retrieval, Ration card printing format) are fully automated. Our systems instantly query corresponding government databases and format the returned details into a high-quality print card PDF. This processes in real-time (under 5 seconds) and immediately deducts the cost from your wallet balance.
+        </div>
+    </div>
+
+    <div class="faq-item">
+        <div class="faq-question">
+            <span>My recharge request is still pending. What should I do?</span>
+            <i class="fa-solid fa-chevron-down"></i>
+        </div>
+        <div class="faq-answer">
+            All credit request balances via UPI scan require manual validation of the UTR transaction reference ID. Recharges are normally verified and approved by admins within 5 to 10 minutes (available between 8:00 AM and 10:00 PM). If your recharge has been pending for over 30 minutes, please click on the Chat Support button below and share your registered email and the payment receipt.
+        </div>
+    </div>
+
+    <div class="faq-item">
+        <div class="faq-question">
+            <span>What happens if my application is rejected?</span>
+            <i class="fa-solid fa-chevron-down"></i>
+        </div>
+        <div class="faq-answer">
+            If our admin agents cannot process your request (e.g. details like EPIC number or Aadhaar entered were invalid, or server is down), the application will be marked as REJECTED. The system will automatically refund the full debit amount back to your wallet balance instantly. You will see the refund reflected immediately in your dashboard.
+        </div>
+    </div>
+
+    <div class="faq-item">
+        <div class="faq-question">
+            <span>What is the minimum wallet recharge limit?</span>
+            <i class="fa-solid fa-chevron-down"></i>
+        </div>
+        <div class="faq-answer">
+            To prevent spam transactions, the minimum amount you can add to your wallet at any single time is ₹200. There is no maximum limit, and the balance does not have any expiration date.
+        </div>
+    </div>
+
+    <!-- Official Helpdesk box -->
+    <div class="support-box">
+        <h3 style="font-size: 18px; font-weight: 600; color: #fff; margin-bottom: 10px;">Still need assistance?</h3>
+        <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Contact our customer helpdesk on WhatsApp for immediate resolution of any order or wallet issue.</p>
+        <a href="https://wa.me/919999999999" target="_blank" class="btn btn-accent" style="border-radius: 30px; padding: 12px 28px;">
+            <i class="fa-brands fa-whatsapp" style="font-size: 18px;"></i> Contact Support on WhatsApp
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const faqItems = document.querySelectorAll('.faq-item');
+    
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        question.addEventListener('click', () => {
+            // Close other items if open
+            faqItems.forEach(otherItem => {
+                if (otherItem !== item && otherItem.classList.contains('active')) {
+                    otherItem.classList.remove('active');
+                }
+            });
+            // Toggle active state
+            item.classList.toggle('active');
+        });
+    });
+</script>
+{% endblock %}

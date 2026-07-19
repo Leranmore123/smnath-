@@ -1,0 +1,237 @@
+{% extends 'core/base.html' %}
+
+{% block title %}{{ category_title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .service-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+    }
+
+    .service-card {
+        background-color: var(--card-color);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 200px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .service-card:hover {
+        transform: translateY(-4px);
+        border-color: var(--primary);
+        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
+    }
+
+    .service-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 12px;
+    }
+
+    .service-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #fff;
+        line-height: 1.4;
+    }
+
+    .service-cost {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--accent);
+        background-color: rgba(0, 245, 212, 0.08);
+        padding: 4px 8px;
+        border-radius: 6px;
+        border: 1px solid rgba(0, 245, 212, 0.15);
+    }
+
+    .service-desc {
+        font-size: 13px;
+        color: var(--text-muted);
+        line-height: 1.5;
+        margin-bottom: 20px;
+        flex-grow: 1;
+    }
+
+    .service-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: auto;
+    }
+
+    .service-type-badge {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        padding: 2px 8px;
+        border-radius: 4px;
+    }
+
+    .badge-auto {
+        background-color: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .badge-manual {
+        background-color: rgba(59, 130, 246, 0.1);
+        color: var(--primary);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+    }
+
+    /* Print subcategory tab styles */
+    .tabs-navigation {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 30px;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 15px;
+        flex-wrap: wrap;
+    }
+
+    .tab-btn {
+        padding: 10px 18px;
+        background: none;
+        border: 1px solid var(--border-color);
+        border-radius: 30px;
+        color: var(--text-muted);
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .tab-btn:hover, .tab-btn.active {
+        color: #fff;
+        border-color: var(--primary);
+        background-color: rgba(59, 130, 246, 0.1);
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 25px;">
+    <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 5px;">{{ category_title }}</h2>
+    <p style="color: var(--text-muted); font-size: 14px;">Select a service below to file applications and retrieve printable databases.</p>
+</div>
+
+{% if category_slug == 'print-services' %}
+    <!-- Display Subcategory Navigation Tabs for Print category -->
+    <div class="tabs-navigation">
+        <button class="tab-btn active" onclick="switchTab('tab-ration')"><i class="fa-solid fa-cookie-bite"></i> Ration Card</button>
+        <button class="tab-btn" onclick="switchTab('tab-voter')"><i class="fa-solid fa-address-card"></i> Voter Services</button>
+        <button class="tab-btn" onclick="switchTab('tab-dl')"><i class="fa-solid fa-car-side"></i> Driving Licence</button>
+        <button class="tab-btn" onclick="switchTab('tab-vehicle')"><i class="fa-solid fa-motorcycle"></i> Vehicle RC</button>
+        <button class="tab-btn" onclick="switchTab('tab-pan')"><i class="fa-solid fa-passport"></i> PAN Card</button>
+    </div>
+
+    <!-- Tab Sections -->
+    <div id="tab-ration" class="tab-content active">
+        <div class="service-grid">
+            {% for service in subcategories.ration_card %}
+                {% include 'core/includes/service_card_include.html' %}
+            {% empty %}
+                <p style="color: var(--text-muted); grid-column: span 3; text-align: center; padding: 40px;">No Ration Card services configured.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div id="tab-voter" class="tab-content">
+        <div class="service-grid">
+            {% for service in subcategories.voter_services %}
+                {% include 'core/includes/service_card_include.html' %}
+            {% empty %}
+                <p style="color: var(--text-muted); grid-column: span 3; text-align: center; padding: 40px;">No Voter services configured.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div id="tab-dl" class="tab-content">
+        <div class="service-grid">
+            {% for service in subcategories.dl_services %}
+                {% include 'core/includes/service_card_include.html' %}
+            {% empty %}
+                <p style="color: var(--text-muted); grid-column: span 3; text-align: center; padding: 40px;">No DL services configured.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div id="tab-vehicle" class="tab-content">
+        <div class="service-grid">
+            {% for service in subcategories.vehicle_services %}
+                {% include 'core/includes/service_card_include.html' %}
+            {% empty %}
+                <p style="color: var(--text-muted); grid-column: span 3; text-align: center; padding: 40px;">No Vehicle RC services configured.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div id="tab-pan" class="tab-content">
+        <div class="service-grid">
+            {% for service in subcategories.pan_services %}
+                {% include 'core/includes/service_card_include.html' %}
+            {% empty %}
+                <p style="color: var(--text-muted); grid-column: span 3; text-align: center; padding: 40px;">No PAN services configured.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+{% else %}
+    <!-- Simple grid list for Govt & Other categories -->
+    <div class="service-grid">
+        {% for service in services %}
+            {% include 'core/includes/service_card_include.html' %}
+        {% empty %}
+            <div class="card" style="grid-column: span 3; text-align: center; padding: 40px; width: 100%;">
+                <p style="color: var(--text-muted);">No services found in this category.</p>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function switchTab(tabId) {
+        // Hide all tabs
+        const contents = document.querySelectorAll('.tab-content');
+        contents.forEach(c => c.classList.remove('active'));
+
+        // Deactivate all buttons
+        const buttons = document.querySelectorAll('.tab-btn');
+        buttons.forEach(b => b.classList.remove('active'));
+
+        // Show active tab
+        document.getElementById(tabId).classList.add('active');
+
+        // Highlight matching button
+        const activeBtn = Array.from(buttons).find(btn => btn.getAttribute('onclick').includes(tabId));
+        if (activeBtn) activeBtn.classList.add('active');
+    }
+</script>
+{% endblock %}

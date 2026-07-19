@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Welcome{% endblock %} - SM Sevaone Clone</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-color: #0b132b;
+            --sidebar-color: #1c2541;
+            --card-color: #222e50;
+            --text-color: #e2e8f0;
+            --text-muted: #94a3b8;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --accent: #00f5d4;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --sidebar-width: 260px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--sidebar-color);
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-color);
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-brand {
+            padding: 24px;
+            font-size: 22px;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sidebar-brand span {
+            color: var(--accent);
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 20px 0;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .sidebar-menu::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .sidebar-menu::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .sidebar-item a {
+            display: flex;
+            align-items: center;
+            padding: 14px 24px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            gap: 15px;
+            transition: all 0.2s ease;
+            font-size: 15px;
+        }
+
+        .sidebar-item a:hover {
+            color: #fff;
+            background-color: rgba(255, 255, 255, 0.03);
+        }
+
+        .sidebar-item.active a {
+            color: #fff;
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0) 100%);
+            border-left: 4px solid var(--primary);
+            padding-left: 20px;
+        }
+
+        .sidebar-item a i {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        /* Main Workspace Container */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex-grow: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: margin-left 0.3s ease;
+        }
+
+        /* Header Styling */
+        .topbar {
+            background-color: var(--sidebar-color);
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 99;
+        }
+
+        .toggle-btn {
+            font-size: 20px;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            display: none;
+        }
+
+        .wallet-display {
+            background-color: rgba(0, 245, 212, 0.08);
+            border: 1px solid rgba(0, 245, 212, 0.2);
+            padding: 8px 16px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .user-nav {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-nav-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--text-color);
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        /* Content Area */
+        .content {
+            padding: 30px;
+            flex-grow: 1;
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* Common Elements styling */
+        .card {
+            background-color: var(--card-color);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-accent {
+            background-color: var(--accent);
+            color: #0b132b;
+        }
+
+        .btn-accent:hover {
+            box-shadow: 0 0 15px rgba(0, 245, 212, 0.4);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        .btn-secondary {
+            background-color: rgba(255, 255, 255, 0.08);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(255, 255, 255, 0.12);
+        }
+
+        /* Message Notifications */
+        .messages {
+            margin-bottom: 20px;
+            list-style: none;
+        }
+
+        .message {
+            padding: 14px 20px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideDown 0.3s ease;
+        }
+
+        .message.success {
+            background-color: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .message.error {
+            background-color: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .message.warning {
+            background-color: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Table Styling */
+        .table-responsive {
+            overflow-x: auto;
+            width: 100%;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .table th, .table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table th {
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table td {
+            font-size: 14px;
+        }
+
+        .table tr:hover td {
+            background-color: rgba(255, 255, 255, 0.01);
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-pending {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .badge-completed, .badge-approved {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .badge-rejected, .badge-failed {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        /* Footer styling */
+        .footer {
+            background-color: var(--sidebar-color);
+            padding: 20px 30px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-color);
+            margin-top: auto;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .toggle-btn {
+                display: block;
+            }
+
+            body.sidebar-open .sidebar {
+                transform: translateX(0);
+            }
+
+            body.sidebar-open .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Sidebar navigation -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <i class="fa-solid fa-cloud-bolt"></i> SM Seva<span>One</span>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                <a href="{% url 'dashboard' %}"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+            </li>
+            
+            <li class="sidebar-item {% if category_slug == 'govt-services' %}active{% endif %}">
+                <a href="{% url 'services_list' 'govt-services' %}"><i class="fa-solid fa-building-columns"></i> Govt Services</a>
+            </li>
+            
+            <li class="sidebar-item {% if category_slug == 'print-services' %}active{% endif %}">
+                <a href="{% url 'services_list' 'print-services' %}"><i class="fa-solid fa-print"></i> Print Services</a>
+            </li>
+            
+            <li class="sidebar-item {% if category_slug == 'other-services' %}active{% endif %}">
+                <a href="{% url 'services_list' 'other-services' %}"><i class="fa-solid fa-list-check"></i> Other Services</a>
+            </li>
+            
+            <li class="sidebar-item {% if request.resolver_match.url_name == 'wallet' %}active{% endif %}">
+                <a href="{% url 'wallet' %}"><i class="fa-solid fa-wallet"></i> Recharge Wallet</a>
+            </li>
+            
+            <li class="sidebar-item {% if request.resolver_match.url_name == 'wallet_history' %}active{% endif %}">
+                <a href="{% url 'wallet_history' %}"><i class="fa-solid fa-history"></i> Wallet Log</a>
+            </li>
+            
+            <li class="sidebar-item {% if request.resolver_match.url_name == 'transaction_history' %}active{% endif %}">
+                <a href="{% url 'transaction_history' %}"><i class="fa-solid fa-file-invoice-dollar"></i> Service Log</a>
+            </li>
+            
+            <li class="sidebar-item {% if request.resolver_match.url_name == 'pricing' %}active{% endif %}">
+                <a href="{% url 'pricing' %}"><i class="fa-solid fa-tags"></i> Pricing List</a>
+            </li>
+            
+            <li class="sidebar-item {% if request.resolver_match.url_name == 'faq' %}active{% endif %}">
+                <a href="{% url 'faq' %}"><i class="fa-solid fa-circle-question"></i> FAQ / Support</a>
+            </li>
+            
+            <li class="sidebar-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+                <a href="{% url 'profile' %}"><i class="fa-solid fa-user-gear"></i> Profile & Password</a>
+            </li>
+
+            {% if user.is_staff %}
+            <li class="sidebar-item {% if request.resolver_match.url_name == 'admin_panel' %}active{% endif %}" style="margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+                <a href="{% url 'admin_panel' %}" style="color: var(--accent);"><i class="fa-solid fa-gauge-high"></i> Staff Panel</a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'admin:index' %}" target="_blank" style="color: #60a5fa;"><i class="fa-solid fa-unlock-keyhole"></i> Django Admin</a>
+            </li>
+            {% endif %}
+            
+            <li class="sidebar-item" style="margin-top: 20px;">
+                <a href="{% url 'logout' %}" style="color: var(--danger);"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content Workspace -->
+    <div class="main-content">
+        <div class="topbar">
+            <button class="toggle-btn" id="toggle-btn"><i class="fa-solid fa-bars"></i></button>
+            
+            <div class="wallet-display">
+                <i class="fa-solid fa-wallet"></i> Wallet: ₹{{ user.profile.wallet_balance|floatformat:2 }}
+            </div>
+            
+            <div class="user-nav">
+                <a href="{% url 'profile' %}" class="user-nav-profile">
+                    <span class="user-avatar">{{ user.first_name|slice:":1"|default:user.username|slice:":1"|upper }}</span>
+                    <span style="font-weight: 500; font-size: 14px;" class="hide-mobile">{{ user.first_name|default:user.username }}</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Messages / Feedback Notifications -->
+            {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                        <li class="message {{ message.tags }}">
+                            {% if 'success' in message.tags %}<i class="fa-solid fa-circle-check"></i>
+                            {% elif 'error' in message.tags %}<i class="fa-solid fa-circle-xmark"></i>
+                            {% else %}<i class="fa-solid fa-circle-info"></i>{% endif %}
+                            {{ message }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            &copy; 2026 SM Sevaone. Dedicated Government Application and PVC Card Printing Gateway. All Rights Reserved.
+        </footer>
+    </div>
+
+    <!-- Toggle Sidebar Script -->
+    <script>
+        const toggleBtn = document.getElementById('toggle-btn');
+        const body = document.body;
+
+        toggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            body.classList.toggle('sidebar-open');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (body.classList.contains('sidebar-open') && !document.getElementById('sidebar').contains(e.target) && e.target !== toggleBtn) {
+                body.classList.remove('sidebar-open');
+            }
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

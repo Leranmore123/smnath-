@@ -1,0 +1,248 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Staff Panel{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+
+    .admin-section-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #fff;
+        margin-bottom: 20px;
+        border-left: 4px solid var(--accent);
+        padding-left: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .action-form {
+        display: inline-block;
+    }
+
+    .reject-notes-box {
+        display: none;
+        margin-top: 10px;
+        background-color: rgba(0, 0, 0, 0.2);
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        max-width: 400px;
+    }
+
+    .form-control-sm {
+        width: 100%;
+        padding: 8px 12px;
+        background-color: rgba(11, 19, 43, 0.6);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        color: #fff;
+        font-size: 13px;
+        margin-bottom: 10px;
+    }
+
+    .form-control-sm:focus {
+        outline: none;
+        border-color: var(--primary);
+    }
+
+    .action-panel-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+        font-weight: 600;
+        border-radius: 6px;
+    }
+
+    .field-label-tag {
+        font-weight: 600;
+        color: var(--text-muted);
+        display: inline-block;
+        width: 120px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 25px;">
+    <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 5px;">Staff Admin Portal</h2>
+    <p style="color: var(--text-muted); font-size: 14px;">Process manual credit recharges and upload completed document files.</p>
+</div>
+
+<div class="admin-grid">
+    <!-- Pending topups section -->
+    <div class="card">
+        <div class="admin-section-title">
+            <i class="fa-solid fa-wallet" style="color: var(--accent);"></i> Pending Wallet Top-ups ({{ pending_topups.count }})
+        </div>
+
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>User</th>
+                        <th>Amount</th>
+                        <th>UTR Reference ID</th>
+                        <th>Submitted At</th>
+                        <th style="text-align: right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for topup in pending_topups %}
+                        <tr>
+                            <td style="font-weight: 600; font-family: monospace;">{{ topup.order_id }}</td>
+                            <td>{{ topup.user.first_name|default:topup.user.username }} ({{ topup.user.profile.member_id }})</td>
+                            <td style="font-weight: 700; color: var(--accent);">₹{{ topup.amount }}</td>
+                            <td style="font-family: monospace; color: #fff;">{{ topup.transaction_id_utr }}</td>
+                            <td>{{ topup.created_at|date:"Y-m-d H:i" }}</td>
+                            <td style="text-align: right;">
+                                <div style="display: inline-flex; gap: 8px;">
+                                    <a href="{% url 'admin_approve_topup' topup.id %}" class="btn btn-accent action-panel-btn">
+                                        <i class="fa-solid fa-circle-check"></i> Approve
+                                    </a>
+                                    
+                                    <button onclick="toggleRejectBox('topup-reject-{{ topup.id }}')" class="btn btn-danger action-panel-btn">
+                                        <i class="fa-solid fa-circle-xmark"></i> Reject
+                                    </button>
+                                </div>
+
+                                <div class="reject-notes-box" id="topup-reject-{{ topup.id }}" style="text-align: left;">
+                                    <form method="POST" action="{% url 'admin_reject_topup' topup.id %}">
+                                        {% csrf_token %}
+                                        <label class="form-label" style="font-size: 12px; margin-bottom: 5px;">Rejection Note</label>
+                                        <input type="text" name="admin_notes" class="form-control-sm" placeholder="UTR is invalid/already used" required>
+                                        <div style="display: flex; gap: 5px;">
+                                            <button type="submit" class="btn btn-danger action-panel-btn" style="padding: 4px 8px;">Confirm Reject</button>
+                                            <button type="button" onclick="toggleRejectBox('topup-reject-{{ topup.id }}')" class="btn btn-secondary action-panel-btn" style="padding: 4px 8px;">Cancel</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px;">No pending top-up requests.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Pending applications section -->
+    <div class="card">
+        <div class="admin-section-title">
+            <i class="fa-solid fa-file-invoice" style="color: var(--primary);"></i> Pending Service Applications ({{ pending_applications.count }})
+        </div>
+
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>User</th>
+                        <th>Service Requested</th>
+                        <th>Details Submitted</th>
+                        <th>Fee Paid</th>
+                        <th>Submitted At</th>
+                        <th style="text-align: right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in pending_applications %}
+                        <tr>
+                            <td style="font-weight: 600; font-family: monospace;">{{ app.order_id }}</td>
+                            <td>{{ app.user.first_name|default:app.user.username }} ({{ app.user.profile.member_id }})</td>
+                            <td style="font-weight: 600; color: #fff;">{{ app.service.name }}</td>
+                            <td>
+                                <div style="font-size: 12px; min-width: 240px; line-height: 1.5; background-color: rgba(255, 255, 255, 0.03); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
+                                    {% for key, val in app.form_data.items %}
+                                        <span class="field-label-tag">{{ key|title }}:</span>
+                                        {% if "uploads/" in val %}
+                                            <a href="/media/{{ val }}" target="_blank" style="color: var(--primary); font-weight: 600;">View File</a>
+                                        {% else %}
+                                            <span style="color: #fff;">{{ val }}</span>
+                                        {% endif %}<br>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                            <td style="font-weight: 600; color: var(--danger);">₹{{ app.amount }}</td>
+                            <td>{{ app.created_at|date:"Y-m-d H:i" }}</td>
+                            <td style="text-align: right;">
+                                <div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-end;">
+                                    <!-- Complete App Form -->
+                                    <button onclick="toggleRejectBox('app-complete-{{ app.id }}')" class="btn btn-accent action-panel-btn">
+                                        <i class="fa-solid fa-cloud-arrow-up"></i> Complete & Upload File
+                                    </button>
+
+                                    <!-- Reject App Form -->
+                                    <button onclick="toggleRejectBox('app-reject-{{ app.id }}')" class="btn btn-danger action-panel-btn">
+                                        <i class="fa-solid fa-circle-xmark"></i> Reject & Refund
+                                    </button>
+                                </div>
+
+                                <!-- Complete Overlay input -->
+                                <div class="reject-notes-box" id="app-complete-{{ app.id }}" style="text-align: left; width: 300px;">
+                                    <form method="POST" action="{% url 'admin_complete_application' app.id %}" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <label class="form-label" style="font-size: 12px; margin-bottom: 5px; color: #fff;">Upload Result Document (PDF)</label>
+                                        <input type="file" name="result_file" class="form-control-sm" required style="padding: 4px;">
+                                        
+                                        <label class="form-label" style="font-size: 12px; margin-bottom: 5px; color: #fff;">Notes (Optional)</label>
+                                        <input type="text" name="admin_notes" class="form-control-sm" placeholder="Your document is ready to print">
+                                        
+                                        <div style="display: flex; gap: 5px;">
+                                            <button type="submit" class="btn btn-accent action-panel-btn" style="padding: 4px 8px;">Upload & Complete</button>
+                                            <button type="button" onclick="toggleRejectBox('app-complete-{{ app.id }}')" class="btn btn-secondary action-panel-btn" style="padding: 4px 8px;">Cancel</button>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <!-- Reject Overlay input -->
+                                <div class="reject-notes-box" id="app-reject-{{ app.id }}" style="text-align: left; width: 300px;">
+                                    <form method="POST" action="{% url 'admin_reject_application' app.id %}">
+                                        {% csrf_token %}
+                                        <label class="form-label" style="font-size: 12px; margin-bottom: 5px; color: #fff;">Reason for Rejection (refunds balance)</label>
+                                        <input type="text" name="admin_notes" class="form-control-sm" placeholder="EPIC number is incorrect" required>
+                                        <div style="display: flex; gap: 5px;">
+                                            <button type="submit" class="btn btn-danger action-panel-btn" style="padding: 4px 8px;">Confirm Reject & Refund</button>
+                                            <button type="button" onclick="toggleRejectBox('app-reject-{{ app.id }}')" class="btn btn-secondary action-panel-btn" style="padding: 4px 8px;">Cancel</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">No pending manual service applications.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function toggleRejectBox(boxId) {
+        const box = document.getElementById(boxId);
+        if (box.style.display === 'block') {
+            box.style.display = 'none';
+        } else {
+            // Close other boxes
+            const boxes = document.querySelectorAll('.reject-notes-box');
+            boxes.forEach(b => b.style.display = 'none');
+            // Show target box
+            box.style.display = 'block';
+        }
+    }
+</script>
+{% endblock %}

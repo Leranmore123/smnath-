@@ -1,0 +1,21 @@
+<div class="service-card">
+    <div class="service-header">
+        <h4 class="service-title">{{ service.name }}</h4>
+        <span class="service-cost">₹{{ service.cost|floatformat:0 }}</span>
+    </div>
+    
+    <p class="service-desc">{{ service.description }}</p>
+    
+    <div class="service-footer">
+        <span class="service-type-badge badge-{{ service.service_type|lower }}">
+            {% if service.service_type == 'Automated' %}
+                <i class="fa-solid fa-bolt"></i> Instant
+            {% else %}
+                <i class="fa-solid fa-clock"></i> Manual
+            {% endif %}
+        </span>
+        <a href="{% url 'apply_service' service.slug %}" class="btn btn-accent" style="padding: 6px 14px; font-size: 12px; font-weight: bold;">
+            Apply Now
+        </a>
+    </div>
+</div>
