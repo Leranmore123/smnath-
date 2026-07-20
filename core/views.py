@@ -2181,7 +2181,7 @@ def fetch_pan_details(request):
     else:
         return JsonResponse({
             'success': False,
-            'message': 'Failed to fetch details from government database. Please check the PAN number.'
+            'message': 'Surepass API Token is invalid or unauthorized (HTTP 401). Please update SUREPASS_API_TOKEN in .env.'
         }, status=400)
 
 
