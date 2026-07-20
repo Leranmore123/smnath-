@@ -32,6 +32,18 @@ def call_surepass_api(endpoint, payload):
             'Content-Type': 'application/json',
             'Authorization': f"Bearer {token}"
         }
+        try:
+            parts = token.split('.')
+            if len(parts) >= 2:
+                import base64
+                payload_b64 = parts[1] + '=' * (4 - len(parts[1]) % 4)
+                token_payload = json.loads(base64.b64decode(payload_b64).decode('utf-8'))
+                client_id = token_payload.get('identity') or token_payload.get('email')
+                if client_id:
+                    headers['x-client-id'] = client_id
+        except Exception:
+            pass
+
         data_bytes = json.dumps(payload).encode('utf-8')
         req = urllib.request.Request(url, data=data_bytes, headers=headers, method='POST')
         
