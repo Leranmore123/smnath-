@@ -1,6 +1,7 @@
 import json
 import random
 import urllib.request
+import urllib.error
 import urllib.parse
 from django.conf import settings
 
@@ -60,6 +61,13 @@ def call_surepass_api(endpoint, payload):
         else:
             print(f"Surepass API error response: {res_data}")
             return None
+    except urllib.error.HTTPError as e:
+        try:
+            err_body = e.read().decode('utf-8')
+            print(f"Surepass HTTPError {e.code}: {err_body}")
+        except Exception:
+            print(f"Surepass HTTPError {e.code}: {str(e)}")
+        return None
     except Exception as e:
         print(f"Surepass API execution failed: {str(e)}")
         return None
