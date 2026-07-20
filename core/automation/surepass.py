@@ -118,15 +118,18 @@ def verify_vehicle_rc(vehicle_number):
 
 def verify_pan_card(pan_number):
     """
-    Fetch PAN details from Surepass using the new PAN Lite API.
+    Fetch PAN details from Surepass using the PAN / PAN Lite API.
     """
     payload = {"id_number": pan_number}
     data = call_surepass_api("api/v1/pan/pan", payload)
+    if not data:
+        data = call_surepass_api("api/v1/pan/pan-lite", payload)
+        
     if data:
         return {
             'pan_number': pan_number,
-            'name': data.get('full_name', 'Not Available'),
-            'status': 'Active',
+            'name': data.get('full_name') or data.get('name') or data.get('pan_holder_name', 'Not Available'),
+            'status': data.get('status', 'Active'),
             'category': data.get('category', 'person'),
             'source': "Live Income Tax Department Database (via Surepass API)"
         }
