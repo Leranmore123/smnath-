@@ -9,29 +9,11 @@ def get_surepass_base_url():
     """
     Dynamically determine whether to use the sandbox or production URL
     """
-    mode = getattr(settings, 'SUREPASS_MODE', '').lower()
+    mode = getattr(settings, 'SUREPASS_MODE', 'production').lower()
     if mode in ['production', 'prod', 'live']:
         return "https://kyc-api.surepass.app"
     elif mode == 'sandbox':
         return "https://sandbox.surepass.app"
-
-    token = getattr(settings, 'SUREPASS_API_TOKEN', '')
-    if token:
-        try:
-            parts = token.split('.')
-            if len(parts) >= 2:
-                import base64
-                payload_b64 = parts[1] + '=' * (4 - len(parts[1]) % 4)
-                payload = json.loads(base64.b64decode(payload_b64).decode('utf-8'))
-                
-                email = str(payload.get('email', '')).lower()
-                identity = str(payload.get('identity', '')).lower()
-                tenant_id = str(payload.get('tenant_id', '')).lower()
-                
-                if 'sandbox' in email or 'sandbox' in identity or 'sandbox' in tenant_id or 'dev.' in email or 'dev.' in identity:
-                    return "https://sandbox.surepass.app"
-        except Exception:
-            pass
     return "https://kyc-api.surepass.app"
 
 def call_surepass_api(endpoint, payload):
