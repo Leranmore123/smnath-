@@ -80,17 +80,21 @@ def verify_voter_card(epic_number):
     """
     Fetch Voter details from Surepass using the new Voter ID API.
     """
-    payload = {"id_number": epic_number}
+    clean_epic = str(epic_number).strip().upper().replace(' ', '')
+    payload = {"id_number": clean_epic}
     data = call_surepass_api("api/v1/voter-id/voter-id", payload)
     if data:
         return {
-            'epic_no': data.get('epic_no', epic_number),
+            'epic_no': data.get('epic_no') or clean_epic,
             'name': data.get('name', 'Not Available'),
             'father_name': data.get('relation_name', 'Not Available'),
-            'gender': "Male" if data.get('gender') == 'M' else ("Female" if data.get('gender') == 'F' else 'Not Available'),
+            'relation_type': data.get('relation_type', 'F'),
+            'gender': "Male" if data.get('gender') in ['M', 'Male'] else ("Female" if data.get('gender') in ['F', 'Female'] else 'Not Available'),
             'age': data.get('age', 'Not Available'),
-            'state': data.get('state', 'Not Available'),
+            'dob': data.get('dob', 'Not Available'),
+            'house_no': data.get('house_no', 'Not Available'),
             'district': data.get('area', 'Not Available'),
+            'state': data.get('state', 'Not Available'),
             'assembly': 'Not Available',
             'polling_station': 'Not Available',
             'source': "Live Election Commission Database (via Surepass API)"
