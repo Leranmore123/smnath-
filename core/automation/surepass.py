@@ -108,7 +108,6 @@ def verify_voter_card(epic_number, full_name=None, dob=None):
         # Fallback to simple query if additional details query failed
         data = call_surepass_api("api/v1/voter-id/voter-id", {"id_number": clean_epic})
 
-    if data:
         return {
             'epic_no': data.get('epic_no') or clean_epic,
             'name': data.get('name', 'Not Available'),
@@ -117,11 +116,12 @@ def verify_voter_card(epic_number, full_name=None, dob=None):
             'gender': "Male" if data.get('gender') in ['M', 'Male'] else ("Female" if data.get('gender') in ['F', 'Female'] else 'Not Available'),
             'age': data.get('age', 'Not Available'),
             'dob': data.get('dob', 'Not Available'),
-            'house_no': data.get('house_no', 'Not Available'),
-            'district': data.get('area', 'Not Available'),
-            'state': data.get('state', 'Not Available'),
-            'assembly': 'Not Available',
-            'polling_station': 'Not Available',
+            'house_no': data.get('house_no', ''),
+            'area': data.get('area', ''),
+            'district': data.get('district') or data.get('area', ''),
+            'state': data.get('state', ''),
+            'assembly': data.get('assembly') or data.get('ac_name') or '',
+            'polling_station': data.get('polling_station') or data.get('part_name') or '',
             'source': "Live Election Commission Database (via Surepass API)"
         }
     return None

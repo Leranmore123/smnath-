@@ -1109,9 +1109,10 @@ def generate_voter_card_pdf(epic_no, name, father_name, gender, age, state, dist
     p.drawString(x_back, 185, "Address:")
     p.setFont("Helvetica", 6.5)
     
-    full_addr = f"{house_no}, {area}, {district}, {state}".strip(', ')
-    if len(full_addr) < 5:
-        full_addr = f"AHMEDABAD, GUJARAT - 380001"
+    full_addr_parts = [p.strip() for p in [house_no, area, district, state] if p and str(p).strip() and str(p).strip().upper() not in ['NOT AVAILABLE', 'NONE', 'NULL']]
+    full_addr = ", ".join(full_addr_parts)
+    if not full_addr:
+        full_addr = "INDIA"
     
     # Multi-line address wrap
     p.drawString(x_back, 174, full_addr.upper()[:35])
@@ -1121,10 +1122,14 @@ def generate_voter_card_pdf(epic_no, name, father_name, gender, age, state, dist
         p.drawString(x_back, 154, full_addr.upper()[70:105])
 
     # Electoral Registration Officer & Issue Date Section (Middle)
+    ero_name = str(assembly).upper().strip()
+    if not ero_name or ero_name in ['NOT AVAILABLE', 'ASSEMBLY CONSTITUENCY', 'NONE']:
+        ero_name = "ELECTORAL REGISTRATION OFFICER"
+
     p.setFont("Helvetica-Bold", 6)
     p.drawString(x_back, 138, "Electoral Registration Officer:")
     p.setFont("Helvetica", 6.5)
-    p.drawString(x_back, 128, str(assembly).upper()[:35])
+    p.drawString(x_back, 128, ero_name[:35])
     
     p.setFont("Helvetica-Bold", 6)
     p.drawString(x_back, 114, "Issue Date:")
