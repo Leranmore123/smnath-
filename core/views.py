@@ -987,42 +987,41 @@ def generate_voter_card_pdf(epic_no, name, father_name, gender, age, state, dist
     p.setFillColor(HexColor("#f4f4f4"))
     p.rect(10, 10, 330, 200, fill=True, stroke=True)
     
-    p.setFillColor(HexColor("#2c3e50"))
+    p.setFillColor(HexColor("#1b365d"))
     p.rect(10, 185, 330, 25, fill=True, stroke=False)
     
     p.setFillColor(HexColor("#ffffff"))
-    p.setFont("Helvetica-Bold", 6)
-    p.drawString(18, 200, "भारत निर्वाचन आयोग")
-    p.drawString(18, 192, "ELECTION COMMISSION OF INDIA")
+    p.setFont("Helvetica-Bold", 8)
+    p.drawString(18, 196, "ELECTION COMMISSION OF INDIA")
     
     p.setFillColor(HexColor("#000000"))
-    p.setFont("Helvetica-Bold", 7)
-    p.drawCentredString(175, 175, "मतदाता फोटो पहचान पत्र / ELECTOR PHOTO IDENTITY CARD")
+    p.setFont("Helvetica-Bold", 7.5)
+    p.drawCentredString(175, 172, "ELECTOR PHOTO IDENTITY CARD")
     
     # EPIC Number
     p.setFont("Helvetica-Bold", 9)
-    p.drawString(20, 155, epic_no.upper())
+    p.drawString(20, 155, str(epic_no).upper())
     
     # Details
     p.setFont("Helvetica-Bold", 6)
-    p.drawString(20, 135, "नाम / Name:")
+    p.drawString(20, 137, "Name:")
     p.setFont("Helvetica-Bold", 8)
-    p.drawString(20, 125, name.upper())
+    p.drawString(20, 127, str(name).upper())
     
     p.setFont("Helvetica-Bold", 6)
-    p.drawString(20, 110, "सम्बन्धी का नाम / Relation Name:")
+    p.drawString(20, 112, "Relation Name:")
     p.setFont("Helvetica-Bold", 8)
-    p.drawString(20, 100, father_name.upper())
+    p.drawString(20, 102, str(father_name).upper())
     
     p.setFont("Helvetica-Bold", 6)
-    p.drawString(20, 85, "लिंग / Gender:")
+    p.drawString(20, 87, "Gender:")
     p.setFont("Helvetica-Bold", 8)
-    p.drawString(20, 75, gender.upper())
+    p.drawString(20, 77, str(gender).upper())
     
     p.setFont("Helvetica-Bold", 6)
-    p.drawString(120, 85, "आयु / Age:")
+    p.drawString(120, 87, "Age:")
     p.setFont("Helvetica-Bold", 8)
-    p.drawString(120, 75, str(age))
+    p.drawString(120, 77, str(age))
     
     # Photo Placeholder
     p.setFillColor(HexColor("#dddddd"))
@@ -1040,37 +1039,36 @@ def generate_voter_card_pdf(epic_no, name, father_name, gender, age, state, dist
     # Details on back
     p.setFillColor(HexColor("#000000"))
     p.setFont("Helvetica-Bold", 6)
-    p.drawString(20, 175, "विधानसभा क्षेत्र / Assembly Constituency:")
+    p.drawString(20, 175, "Assembly Constituency:")
     p.setFont("Helvetica", 7)
-    p.drawString(20, 165, assembly.upper())
+    p.drawString(20, 165, str(assembly).upper())
     
     p.setFont("Helvetica-Bold", 6)
-    p.drawString(20, 145, "भाग संख्या और नाम / Part No. & Name:")
+    p.drawString(20, 145, "Part No. & Name:")
     p.setFont("Helvetica", 7)
-    p.drawString(20, 135, polling_station.upper())
+    p.drawString(20, 135, str(polling_station).upper())
     
     p.setFont("Helvetica-Bold", 6)
-    p.drawString(20, 115, "राज्य / State:")
+    p.drawString(20, 115, "State:")
     p.setFont("Helvetica", 7)
-    p.drawString(20, 105, state.upper())
+    p.drawString(20, 105, str(state).upper())
     
     p.setFont("Helvetica-Bold", 6)
-    p.drawString(150, 115, "जिला / District:")
+    p.drawString(150, 115, "District:")
     p.setFont("Helvetica", 7)
-    p.drawString(150, 105, district.upper())
+    p.drawString(150, 105, str(district).upper())
     
     # Signature of ERO
     p.rect(250, 45, 75, 25, fill=False, stroke=True)
-    p.setFont("Helvetica", 5)
-    p.drawCentredString(287, 35, "निर्वाचक रजिस्ट्रीकरण अधिकारी")
-    p.drawCentredString(287, 28, "Electoral Registration Officer")
+    p.setFont("Helvetica", 5.5)
+    p.drawCentredString(287, 30, "Electoral Registration Officer")
     
     # Barcode
     p.setFillColor(HexColor("#333333"))
     p.rect(20, 45, 180, 15, fill=True, stroke=False)
     p.setFillColor(HexColor("#ffffff"))
     p.setFont("Courier-Bold", 6)
-    p.drawCentredString(110, 49, epic_no)
+    p.drawCentredString(110, 49, str(epic_no).upper())
     
     p.save()
     buffer.seek(0)
