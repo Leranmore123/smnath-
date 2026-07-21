@@ -1626,7 +1626,9 @@ def apply_service(request, service_slug):
                 # Voter services
                 if service.slug in ['original_voter_pdf', 'voter_pdf_instant']:
                     epic_number = form_data.get('epic_number', '') or form_data.get('epic_no', '')
-                    api_data = surepass.verify_voter_card(epic_number)
+                    full_name = form_data.get('full_name', '') or form_data.get('name', '')
+                    dob = form_data.get('dob', '')
+                    api_data = surepass.verify_voter_card(epic_number, full_name=full_name, dob=dob)
                     
                 # Driving Licence services
                 elif service.slug in ['dlallindia', 'dl_karnataka']:

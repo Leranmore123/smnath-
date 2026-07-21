@@ -88,13 +88,26 @@ def call_surepass_api(endpoint, payload):
         LAST_ERROR = f"API Connection Error: {str(e)}"
         return None
 
-def verify_voter_card(epic_number):
+def verify_voter_card(epic_number, full_name=None, dob=None):
     """
     Fetch Voter details from Surepass using the new Voter ID API.
     """
     clean_epic = str(epic_number).strip().upper().replace(' ', '')
     payload = {"id_number": clean_epic}
+    
+    if full_name or dob:
+        add_details = {}
+        if full_name:
+            add_details["full_name"] = str(full_name).strip()
+        if dob:
+            add_details["dob"] = str(dob).strip()
+        payload["additional_details"] = add_details
+
     data = call_surepass_api("api/v1/voter-id/voter-id", payload)
+    if not data and "additional_details" in payload:
+        # Fallback to simple query if additional details query failed
+        data = call_surepass_api("api/v1/voter-id/voter-id", {"id_number": clean_epic})
+
     if data:
         return {
             'epic_no': data.get('epic_no') or clean_epic,
