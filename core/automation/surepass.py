@@ -20,7 +20,7 @@ def call_surepass_api(endpoint, payload):
     """
     Generic helper to execute POST requests to Surepass API.
     """
-    token = getattr(settings, 'SUREPASS_API_TOKEN', '')
+    token = getattr(settings, 'SUREPASS_API_TOKEN', '').strip()
     if not token:
         print("SUREPASS_API_TOKEN is not configured in settings.py / .env. Skipping API execution.")
         return None
@@ -28,12 +28,15 @@ def call_surepass_api(endpoint, payload):
     base_url = get_surepass_base_url()
     url = f"{base_url}/{endpoint}"
     try:
+        # Standard Surepass API expects 'Bearer <token>' or raw token if already formatted
+        auth_header = f"Bearer {token}" if not token.startswith("Bearer ") else token
         headers = {
             'Content-Type': 'application/json',
-            'Authorization': f"Bearer {token}"
+            'Authorization': auth_header
         }
         try:
-            parts = token.split('.')
+            clean_token = token.replace('Bearer ', '').strip()
+            parts = clean_token.split('.')
             if len(parts) >= 2:
                 import base64
                 payload_b64 = parts[1] + '=' * (4 - len(parts[1]) % 4)
@@ -58,7 +61,14 @@ def call_surepass_api(endpoint, payload):
     except urllib.error.HTTPError as e:
         try:
             err_body = e.read().decode('utf-8')
-            print(f"Surepass HTTPError {e.code}: {err_body}")
+            err_json = json.loads(err_body)
+            msg_code = err_json.get('message_code', '')
+            if msg_code == 'ip_not_whitelisted':
+                print(f"[Surepass API Error] IP not whitelisted. Please add your server IP to Surepass Dashboard whitelist. ({err_body})")
+            elif msg_code == 'invalid_token':
+                print(f"[Surepass API Error] Invalid Token. Please verify SUREPASS_API_TOKEN in .env ({err_body})")
+            else:
+                print(f"Surepass HTTPError {e.code}: {err_body}")
         except Exception:
             print(f"Surepass HTTPError {e.code}: {str(e)}")
         return None
