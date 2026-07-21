@@ -1834,21 +1834,6 @@ def apply_service(request, service_slug):
                         result_file = generate_mock_pdf(service.name, api_data)
                     app.result_file.save(result_file.name, result_file)
                     app.admin_notes = "Retrieved via Live Surepass.io Verification API."
-                else:
-                    # Smart fallback: if Voter service has submitted details, generate the PVC card directly
-                    if service.slug in ['voter_pdf_instant', 'original_voter_pdf'] and (form_data.get('epic_number') or form_data.get('epic_no')):
-                        epic_no = str(form_data.get('epic_number') or form_data.get('epic_no')).upper()
-                        name = str(form_data.get('full_name') or 'Altaf').upper()
-                        father = str(form_data.get('father_name') or 'Md Rafik').upper()
-                        dob = str(form_data.get('dob') or '14-03-2005')
-                        result_file = generate_voter_card_pdf(epic_no, name, father, 'MALE', '20', 'GUJARAT', 'AHMEDABAD', 'Assembly Constituency', 'Polling Station')
-                        app.result_file.save(result_file.name, result_file)
-                        app.admin_notes = "Generated Voter PVC Card PDF successfully (ECI Fallback)."
-                        app.status = 'COMPLETED'
-                        app.save()
-                        messages.success(request, f"Voter Card PDF for '{epic_no}' generated and processed successfully!")
-                        return redirect('transaction_history')
-
                     err_reason = getattr(surepass, 'LAST_ERROR', None) or "Surepass API query failed."
                     profile.wallet_balance += service.cost
                     profile.save()
