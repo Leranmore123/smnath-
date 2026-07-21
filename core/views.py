@@ -1054,47 +1054,93 @@ def generate_voter_card_pdf(epic_no, name, father_name, gender, age, state, dist
     p.setFont("Helvetica", 5)
     p.drawCentredString(302, 33, "HOLOGRAM")
     
-    # BACK SIDE
+    # BACK SIDE (Matching official ECI back side photo)
     p.showPage()
     
     p.setFillColor(HexColor("#f4faf7"))
     p.rect(10, 10, 330, 200, fill=True, stroke=True)
     
-    # Details on back
+    # Left Orange/Gold Strip
+    p.setFillColor(HexColor("#e67e22"))
+    p.rect(10, 10, 30, 200, fill=True, stroke=False)
+    
+    p.saveState()
+    p.translate(28, 25)
+    p.rotate(90)
+    p.setFillColor(HexColor("#ffffff"))
+    p.setFont("Helvetica-Bold", 7)
+    p.drawString(0, 0, "V07466346    |    Helpline: 1950    |    eci.gov.in")
+    p.restoreState()
+    
+    # Top Middle QR Code Square Box (Matching photo)
+    p.setFillColor(HexColor("#ffffff"))
+    p.rect(48, 105, 80, 80, fill=True, stroke=True)
+    
+    # Draw QR code grid effect inside box
+    p.setFillColor(HexColor("#000000"))
+    p.rect(54, 161, 20, 20, fill=True, stroke=False)
+    p.rect(102, 161, 20, 20, fill=True, stroke=False)
+    p.rect(54, 111, 20, 20, fill=True, stroke=False)
+    p.setFillColor(HexColor("#ffffff"))
+    p.rect(58, 165, 12, 12, fill=True, stroke=False)
+    p.rect(106, 165, 12, 12, fill=True, stroke=False)
+    p.rect(58, 115, 12, 12, fill=True, stroke=False)
+    p.setFillColor(HexColor("#000000"))
+    p.rect(62, 169, 4, 4, fill=True, stroke=False)
+    p.rect(110, 169, 4, 4, fill=True, stroke=False)
+    p.rect(62, 119, 4, 4, fill=True, stroke=False)
+    
+    # ERO Signature above QR Code (Matching photo)
+    p.setFont("Courier-Oblique", 7)
+    p.drawString(55, 192, "Signature")
+
+    # EPIC Number next to QR Code (Rotated 90 degrees - Matching photo)
+    p.saveState()
+    p.translate(136, 108)
+    p.rotate(90)
+    p.setFont("Helvetica-Bold", 9)
+    p.drawString(0, 0, str(epic_no).upper())
+    p.restoreState()
+    
+    # Address Section (Top Right - Matching photo)
+    x_back = 150
     p.setFillColor(HexColor("#000000"))
     p.setFont("Helvetica-Bold", 6)
-    p.drawString(20, 175, "Address / House No:")
-    p.setFont("Helvetica", 7)
-    addr_line = f"{house_no}, {area}".strip(', ') if house_no or area else f"{district}, {state}"
-    p.drawString(20, 165, addr_line.upper()[:50])
+    p.drawString(x_back, 185, "Address:")
+    p.setFont("Helvetica", 6.5)
+    
+    full_addr = f"{house_no}, {area}, {district}, {state}".strip(', ')
+    if len(full_addr) < 5:
+        full_addr = f"AHMEDABAD, GUJARAT - 380001"
+    
+    # Multi-line address wrap
+    p.drawString(x_back, 174, full_addr.upper()[:35])
+    if len(full_addr) > 35:
+        p.drawString(x_back, 164, full_addr.upper()[35:70])
+    if len(full_addr) > 70:
+        p.drawString(x_back, 154, full_addr.upper()[70:105])
+
+    # Electoral Registration Officer & Issue Date Section (Middle)
+    p.setFont("Helvetica-Bold", 6)
+    p.drawString(x_back, 138, "Electoral Registration Officer:")
+    p.setFont("Helvetica", 6.5)
+    p.drawString(x_back, 128, str(assembly).upper()[:35])
     
     p.setFont("Helvetica-Bold", 6)
-    p.drawString(20, 145, "Area / Locality:")
-    p.setFont("Helvetica", 7)
-    p.drawString(20, 135, str(area or district).upper())
-    
+    p.drawString(x_back, 114, "Issue Date:")
+    p.setFont("Helvetica", 6.5)
+    p.drawString(x_back, 105, "02-04-2024")
+
+    # Note / Instructions (Bottom Section - Matching photo)
+    p.setStrokeColor(HexColor("#dddddd"))
+    p.line(48, 95, 335, 95)
+
     p.setFont("Helvetica-Bold", 6)
-    p.drawString(20, 115, "State:")
-    p.setFont("Helvetica", 7)
-    p.drawString(20, 105, str(state).upper())
-    
-    p.setFont("Helvetica-Bold", 6)
-    p.drawString(150, 115, "District:")
-    p.setFont("Helvetica", 7)
-    p.drawString(150, 105, str(district or area).upper())
-    
-    # Signature of ERO
-    p.rect(250, 45, 75, 25, fill=False, stroke=True)
+    p.drawString(48, 83, "Note:")
     p.setFont("Helvetica", 5.5)
-    p.drawCentredString(287, 30, "Electoral Registration Officer")
-    
-    # Barcode
-    p.setFillColor(HexColor("#333333"))
-    p.rect(20, 45, 180, 15, fill=True, stroke=False)
-    p.setFillColor(HexColor("#ffffff"))
-    p.setFont("Courier-Bold", 6)
-    p.drawCentredString(110, 49, str(epic_no).upper())
-    
+    p.drawString(48, 72, "1) Before every Election, please check that your name exists in current electoral roll.")
+    p.drawString(48, 61, "2) This card is not a proof of age except for purpose of Election.")
+
     p.save()
     buffer.seek(0)
     file_name = f"voter_card_{epic_no}_{random.randint(1000, 9999)}.pdf"
