@@ -1590,26 +1590,7 @@ def apply_service(request, service_slug):
         # If Automated, process it immediately!
         # If Automated, process it immediately!
         if service.service_type == 'Automated':
-            if service.slug == 'voter_pdf_instant':
-                from .automation import surepass
-                epic_no = form_data.get('epic_number', '')
-                client_id = surepass.generate_surepass_otp(epic_no)
-                if not client_id:
-                    profile.wallet_balance += service.cost
-                    profile.save()
-                    app.balance_after = profile.wallet_balance
-                    app.status = 'REJECTED'
-                    app.admin_notes = "Failed to trigger OTP via Surepass API. Cost refunded."
-                    app.save()
-                    messages.error(request, "Failed to trigger OTP verification code. Please check details and try again. Wallet balance refunded.")
-                    return redirect('transaction_history')
-                form_data['otp_client_id'] = client_id
-                app.form_data = form_data
-                app.status = 'PENDING_OTP'
-                app.save()
-                messages.success(request, "OTP has been successfully triggered to your registered mobile number.")
-                return redirect('verify_otp', app_id=app.id)
-            elif service.slug == 'rc_dwnld':
+            if service.slug == 'rc_dwnld':
                 rc_no = form_data.get('ration_card_no', '')
                 result_file = download_ration_card_automated(rc_no)
                 if not result_file:
@@ -1643,8 +1624,8 @@ def apply_service(request, service_slug):
                 api_data = None
                 
                 # Voter services
-                if service.slug == 'original_voter_pdf':
-                    epic_number = form_data.get('epic_number', '')
+                if service.slug in ['original_voter_pdf', 'voter_pdf_instant']:
+                    epic_number = form_data.get('epic_number', '') or form_data.get('epic_no', '')
                     api_data = surepass.verify_voter_card(epic_number)
                     
                 # Driving Licence services
