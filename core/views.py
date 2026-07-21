@@ -2181,7 +2181,7 @@ def fetch_pan_details(request):
     else:
         return JsonResponse({
             'success': False,
-            'message': 'Surepass API Token is invalid or unauthorized (HTTP 401). Please update SUREPASS_API_TOKEN in .env.'
+            'message': 'Surepass API Authorization Failed (HTTP 401 / IP Not Whitelisted). Please ensure server IP 13.62.54.247 is whitelisted on Surepass Dashboard.'
         }, status=400)
 
 
