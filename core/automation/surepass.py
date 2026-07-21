@@ -16,19 +16,24 @@ def get_surepass_base_url():
         return "https://sandbox.surepass.app"
     return "https://kyc-api.surepass.app"
 
+LAST_ERROR = None
+
 def call_surepass_api(endpoint, payload):
     """
     Generic helper to execute POST requests to Surepass API.
+    Returns data or None.
     """
+    global LAST_ERROR
+    LAST_ERROR = None
+
     token = getattr(settings, 'SUREPASS_API_TOKEN', '').strip()
     if not token:
-        print("SUREPASS_API_TOKEN is not configured in settings.py / .env. Skipping API execution.")
+        LAST_ERROR = "SUREPASS_API_TOKEN is not configured in settings.py / .env"
         return None
         
     base_url = get_surepass_base_url()
     url = f"{base_url}/{endpoint}"
     try:
-        # Standard Surepass API expects 'Bearer <token>' or raw token if already formatted
         auth_header = f"Bearer {token}" if not token.startswith("Bearer ") else token
         headers = {
             'Content-Type': 'application/json',
@@ -56,24 +61,31 @@ def call_surepass_api(endpoint, payload):
         if res_data.get('success') or res_data.get('status_code') == 200:
             return res_data.get('data', {})
         else:
+            err_msg = res_data.get('message') or "Surepass API query returned unsuccessful response."
+            LAST_ERROR = err_msg
             print(f"Surepass API error response: {res_data}")
             return None
     except urllib.error.HTTPError as e:
+        err_msg = f"HTTP Error {e.code}"
         try:
             err_body = e.read().decode('utf-8')
             err_json = json.loads(err_body)
             msg_code = err_json.get('message_code', '')
+            api_msg = err_json.get('message', '')
             if msg_code == 'ip_not_whitelisted':
-                print(f"[Surepass API Error] IP not whitelisted. Please add your server IP to Surepass Dashboard whitelist. ({err_body})")
+                err_msg = "Server IP not whitelisted on Surepass Dashboard."
             elif msg_code == 'invalid_token':
-                print(f"[Surepass API Error] Invalid Token. Please verify SUREPASS_API_TOKEN in .env ({err_body})")
+                err_msg = "Invalid Surepass Token in .env."
+            elif api_msg:
+                err_msg = api_msg
             else:
-                print(f"Surepass HTTPError {e.code}: {err_body}")
+                err_msg = err_body
         except Exception:
-            print(f"Surepass HTTPError {e.code}: {str(e)}")
+            pass
+        LAST_ERROR = err_msg
         return None
     except Exception as e:
-        print(f"Surepass API execution failed: {str(e)}")
+        LAST_ERROR = f"API Connection Error: {str(e)}"
         return None
 
 def verify_voter_card(epic_number):

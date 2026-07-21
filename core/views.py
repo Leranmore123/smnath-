@@ -1743,13 +1743,14 @@ def apply_service(request, service_slug):
                     app.result_file.save(result_file.name, result_file)
                     app.admin_notes = "Retrieved via Live Surepass.io Verification API."
                 else:
+                    err_reason = getattr(surepass, 'LAST_ERROR', None) or "Surepass API query failed."
                     profile.wallet_balance += service.cost
                     profile.save()
                     app.balance_after = profile.wallet_balance
                     app.status = 'REJECTED'
-                    app.admin_notes = "Surepass API query failed."
+                    app.admin_notes = f"Rejected & Refunded. Reason: {err_reason}"
                     app.save()
-                    messages.error(request, f"Failed to retrieve/verify details from government database for '{service.name}'. Your wallet balance has been refunded.")
+                    messages.error(request, f"Failed to verify details for '{service.name}': {err_reason}. Your wallet balance has been refunded.")
                     return redirect('transaction_history')
             
             app.status = 'COMPLETED'
