@@ -101,8 +101,25 @@ def verify_driving_license(dl_number, dob):
     """
     Fetch DL details from Surepass using the new Driving License API.
     """
-    payload = {"id_number": dl_number, "dob": dob}
+    # Normalize DOB to YYYY-MM-DD
+    clean_dob = str(dob).strip().replace('/', '-')
+    parts = [p.strip() for p in clean_dob.split('-') if p.strip()]
+    if len(parts) == 3:
+        if len(parts[0]) == 2 and len(parts[2]) == 4:
+            # DD-MM-YYYY -> YYYY-MM-DD
+            clean_dob = f"{parts[2]}-{parts[1].zfill(2)}-{parts[0].zfill(2)}"
+        elif len(parts[0]) == 4:
+            # YYYY-MM-DD
+            clean_dob = f"{parts[0]}-{parts[1].zfill(2)}-{parts[2].zfill(2)}"
+
+    clean_dl = str(dl_number).strip().replace(' ', '')
+    payload = {"id_number": clean_dl, "dob": clean_dob}
     data = call_surepass_api("api/v1/driving-license/driving-license", payload)
+    if not data:
+        # Fallback with space in DL number if unspaced failed
+        payload_space = {"id_number": str(dl_number).strip(), "dob": clean_dob}
+        data = call_surepass_api("api/v1/driving-license/driving-license", payload_space)
+
     if data:
         return {
             'dl_number': dl_number,
