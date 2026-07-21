@@ -1616,13 +1616,6 @@ def apply_service(request, service_slug):
                 elif service.slug in ['dlallindia', 'dl_karnataka']:
                     dl_no = form_data.get('dl_number', '')
                     dob = form_data.get('dob', '2000-01-01')
-                    try:
-                        if '-' in dob:
-                            parts = dob.split('-')
-                            if len(parts) == 3:
-                                dob = f"{parts[2]}-{parts[1]}-{parts[0]}"
-                    except Exception:
-                        pass
                     api_data = surepass.verify_driving_license(dl_no, dob)
                     
                 # Vehicle RC services
