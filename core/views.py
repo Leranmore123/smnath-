@@ -250,16 +250,10 @@ SERVICE_FIELDS = {
         {'name': 'aadhaar_no', 'label': 'Aadhaar No.', 'type': 'text', 'placeholder': 'Enter 12-digit Aadhaar'}
     ],
     'voter_pdf_instant': [
-        {'name': 'epic_number', 'label': 'EPIC Number (ચૂંટણી કાર્ડ નંબર)', 'type': 'text', 'placeholder': 'Enter EPIC Number (e.g. KFI0123521)'},
-        {'name': 'full_name', 'label': 'Full Name (ઓપ્શનલ / નામ)', 'type': 'text', 'placeholder': 'Enter Voter Name (e.g. Altaf)'},
-        {'name': 'father_name', 'label': "Father's Name (ઓપ્શનલ / પિતાનું નામ)", 'type': 'text', 'placeholder': 'Enter Father Name (e.g. Md Rafik)'},
-        {'name': 'dob', 'label': 'Date of Birth (ઓપ્શનલ / જન્મ તારીખ)', 'type': 'text', 'placeholder': 'DD-MM-YYYY (e.g. 14-03-2005)'}
+        {'name': 'epic_number', 'label': 'EPIC Number', 'type': 'text', 'placeholder': 'Enter EPIC Number'}
     ],
     'original_voter_pdf': [
-        {'name': 'epic_number', 'label': 'EPIC Number (ચૂંટણી કાર્ડ નંબર)', 'type': 'text', 'placeholder': 'Enter EPIC Number (e.g. KFI0123521)'},
-        {'name': 'full_name', 'label': 'Full Name (ઓપ્શનલ / નામ)', 'type': 'text', 'placeholder': 'Enter Voter Name (e.g. Altaf)'},
-        {'name': 'father_name', 'label': "Father's Name (ઓપ્શનલ / પિતાનું નામ)", 'type': 'text', 'placeholder': 'Enter Father Name (e.g. Md Rafik)'},
-        {'name': 'dob', 'label': 'Date of Birth (ઓપ્શનલ / જન્મ તારીખ)', 'type': 'text', 'placeholder': 'DD-MM-YYYY (e.g. 14-03-2005)'}
+        {'name': 'epic_number', 'label': 'EPIC Number', 'type': 'text', 'placeholder': 'Enter EPIC Number'}
     ],
     'dlallindia': [
         {'name': 'dl_number', 'label': 'DL Number', 'type': 'text', 'placeholder': 'Enter DL Number (e.g. KA012020XXXXXXX)'},
