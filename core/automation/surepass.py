@@ -121,15 +121,27 @@ def verify_driving_license(dl_number, dob):
         data = call_surepass_api("api/v1/driving-license/driving-license", payload_space)
 
     if data:
+        vehicle_classes = data.get('vehicle_classes') or data.get('cov')
+        if isinstance(vehicle_classes, list):
+            cov_str = ", ".join(vehicle_classes)
+        else:
+            cov_str = str(vehicle_classes or 'Not Available')
+
         return {
-            'dl_number': dl_number,
+            'dl_number': data.get('license_number') or dl_number,
             'name': data.get('name', 'Not Available'),
-            'status': 'Active',
+            'father_name': data.get('father_or_husband_name', 'Not Available'),
+            'gender': "Male" if data.get('gender') == 'M' else ("Female" if data.get('gender') == 'F' else data.get('gender', 'Not Available')),
+            'status': data.get('current_status') or 'Active',
             'dob': data.get('dob', dob),
-            'address': data.get('permanent_address', 'Not Available'),
-            'cov': ", ".join(data.get('cov', [])) if isinstance(data.get('cov'), list) else data.get('cov', 'Not Available'),
-            'valid_from': data.get('doi', 'Not Available'),
+            'address': data.get('permanent_address') or data.get('temporary_address') or 'Not Available',
+            'cov': cov_str,
+            'valid_from': data.get('doi') or data.get('initial_doi', 'Not Available'),
             'valid_till': data.get('doe', 'Not Available'),
+            'blood_group': data.get('blood_group') or 'UNKNOWN',
+            'profile_image': data.get('profile_image') or '',
+            'state': data.get('state', 'Not Available'),
+            'ola_name': data.get('ola_name', 'Not Available'),
             'source': "Live Parivahan Sewa Database (via Surepass API)"
         }
     return None

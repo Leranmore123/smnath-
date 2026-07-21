@@ -1069,11 +1069,11 @@ def generate_voter_card_pdf(epic_no, name, father_name, gender, age, state, dist
     return ContentFile(buffer.getvalue(), name=file_name)
 
 
-def generate_dl_card_pdf(dl_no, name, dob, validity, status, address, cov):
+def generate_dl_card_pdf(dl_no, name, dob, validity, status, address, cov, father_name='Not Available', blood_group='UNKNOWN', profile_image='', doi='Not Available', state='INDIA', ola_name='Not Available'):
     from reportlab.pdfgen import canvas
     from reportlab.lib.colors import HexColor
     from io import BytesIO
-    import random
+    import base64
     
     buffer = BytesIO()
     p = canvas.Canvas(buffer, pagesize=(350, 220))
@@ -1087,66 +1087,101 @@ def generate_dl_card_pdf(dl_no, name, dob, validity, status, address, cov):
     
     p.setFillColor(HexColor("#ffffff"))
     p.setFont("Helvetica-Bold", 6)
-    p.drawString(18, 200, "भारतीय संघ / UNION OF INDIA")
+    p.drawString(18, 200, f"भारतीय संघ / UNION OF INDIA - {state.upper()}")
     p.drawString(18, 192, "चालन अनुज्ञप्ति / DRIVING LICENCE")
     
     p.setFillColor(HexColor("#000000"))
     # Licence No
     p.setFont("Helvetica-Bold", 8)
-    p.drawString(20, 165, f"Licence No: {dl_no.upper()}")
+    p.drawString(20, 168, f"Licence No: {str(dl_no).upper()}")
     
     # Smart Chip Placeholder
     p.setFillColor(HexColor("#f39c12"))
-    p.rect(20, 125, 25, 20, fill=True, stroke=True)
+    p.rect(20, 138, 25, 20, fill=True, stroke=True)
     p.setFillColor(HexColor("#000000"))
     p.setFont("Helvetica", 5)
-    p.drawCentredString(32, 132, "CHIP")
+    p.drawCentredString(32, 145, "CHIP")
     
     # Details
     p.setFont("Helvetica-Bold", 6)
-    p.drawString(60, 145, "Name:")
+    p.drawString(55, 158, "Name:")
     p.setFont("Helvetica", 7)
-    p.drawString(60, 135, name.upper())
+    p.drawString(55, 149, str(name).upper())
     
     p.setFont("Helvetica-Bold", 6)
-    p.drawString(60, 120, "D.O.B:")
-    p.setFont("Helvetica", 7)
-    p.drawString(60, 110, dob)
+    p.drawString(55, 136, "S/D/W of:")
+    p.setFont("Helvetica", 6.5)
+    p.drawString(55, 127, str(father_name).upper())
     
     p.setFont("Helvetica-Bold", 6)
-    p.drawString(150, 120, "COV (Vehicles):")
-    p.setFont("Helvetica", 7)
-    p.drawString(150, 110, cov.upper())
-    
-    # Address
+    p.drawString(20, 115, "D.O.B:")
+    p.setFont("Helvetica", 6.5)
+    p.drawString(20, 106, str(dob))
+
     p.setFont("Helvetica-Bold", 6)
-    p.drawString(20, 95, "Address:")
-    p.setFont("Helvetica", 7)
-    p.drawString(20, 85, address[:50].upper())
-    if len(address) > 50:
-        p.drawString(20, 75, address[50:100].upper())
-        
+    p.drawString(85, 115, "Issue Date (DOI):")
+    p.setFont("Helvetica", 6.5)
+    p.drawString(85, 106, str(doi))
+    
+    p.setFont("Helvetica-Bold", 6)
+    p.drawString(160, 115, "COV (Vehicles):")
+    p.setFont("Helvetica", 6.5)
+    p.drawString(160, 106, str(cov).upper())
+
+    p.setFont("Helvetica-Bold", 6)
+    p.drawString(20, 93, "Blood Group:")
+    p.setFont("Helvetica", 6.5)
+    p.drawString(20, 84, str(blood_group).upper())
+
     # Validity
     p.setFont("Helvetica-Bold", 6)
-    p.drawString(20, 55, "Validity (NT):")
-    p.setFont("Helvetica", 7)
-    p.drawString(20, 45, validity)
+    p.drawString(85, 93, "Validity (NT):")
+    p.setFont("Helvetica", 6.5)
+    p.drawString(85, 84, str(validity))
     
-    p.drawString(150, 55, "Status:")
-    p.drawString(150, 45, status.upper())
-    
-    # Photo Placeholder
-    p.setFillColor(HexColor("#dddddd"))
-    p.rect(260, 95, 65, 75, fill=True, stroke=True)
-    p.setFillColor(HexColor("#777777"))
+    p.drawString(160, 93, "Status:")
+    p.drawString(160, 84, str(status).upper())
+
+    # Address
+    p.setFont("Helvetica-Bold", 6)
+    p.drawString(20, 71, "Address:")
     p.setFont("Helvetica", 6)
-    p.drawCentredString(292, 130, "PHOTO")
+    p.drawString(20, 62, str(address)[:55].upper())
+    if len(str(address)) > 55:
+        p.drawString(20, 53, str(address)[55:110].upper())
+    
+    # Issuing RTO
+    p.setFont("Helvetica-Bold", 5.5)
+    p.drawString(20, 41, f"Issuing RTO: {str(ola_name).upper()}")
+    
+    # Photo Rendering (Draw Base64 Profile Photo if available)
+    has_rendered_photo = False
+    if profile_image:
+        try:
+            from reportlab.lib.utils import ImageReader
+            clean_b64 = str(profile_image).strip()
+            if ',' in clean_b64:
+                clean_b64 = clean_b64.split(',')[1]
+            img_bytes = base64.b64decode(clean_b64)
+            img_reader = ImageReader(BytesIO(img_bytes))
+            p.drawImage(img_reader, 255, 90, width=70, height=80, preserveAspectRatio=True)
+            has_rendered_photo = True
+        except Exception as e:
+            pass
+
+    if not has_rendered_photo:
+        p.setFillColor(HexColor("#dddddd"))
+        p.rect(255, 90, 70, 80, fill=True, stroke=True)
+        p.setFillColor(HexColor("#777777"))
+        p.setFont("Helvetica", 6)
+        p.drawCentredString(290, 130, "PHOTO")
     
     # Signature Placeholder
     p.setFillColor(HexColor("#ffffff"))
-    p.rect(260, 60, 65, 20, fill=True, stroke=True)
+    p.rect(255, 55, 70, 22, fill=True, stroke=True)
     p.setFillColor(HexColor("#777777"))
-    p.drawCentredString(292, 67, "SIGNATURE")
+    p.setFont("Helvetica", 5.5)
+    p.drawCentredString(290, 64, "HOLDER SIGNATURE")
     
     # BACK SIDE
     p.showPage()
@@ -1695,12 +1730,23 @@ def apply_service(request, service_slug):
                     elif service.slug in ['dlallindia', 'dl_karnataka']:
                         dl_no = api_data.get('dl_number', 'KA01123456789')
                         name = api_data.get('name', 'Not Available')
+                        father_name = api_data.get('father_name', 'Not Available')
                         dob = api_data.get('dob', '01/01/1990')
                         val = api_data.get('valid_till', '01/01/2040')
+                        doi = api_data.get('valid_from', 'Not Available')
                         status = api_data.get('status', 'Active')
                         addr = api_data.get('address', 'Bengaluru, Karnataka')
                         cov = api_data.get('cov', 'MCWG, LMV')
-                        result_file = generate_dl_card_pdf(dl_no, name, dob, val, status, addr, cov)
+                        blood_group = api_data.get('blood_group', 'UNKNOWN')
+                        profile_image = api_data.get('profile_image', '')
+                        state = api_data.get('state', 'INDIA')
+                        ola_name = api_data.get('ola_name', 'Not Available')
+
+                        result_file = generate_dl_card_pdf(
+                            dl_no=dl_no, name=name, dob=dob, validity=val, status=status, 
+                            address=addr, cov=cov, father_name=father_name, blood_group=blood_group, 
+                            profile_image=profile_image, doi=doi, state=state, ola_name=ola_name
+                        )
                     elif service.slug in ['allind_adv', 'rckar_pvc']:
                         reg_no = api_data.get('registration_no', 'KA01AB1234')
                         owner = api_data.get('owner_name', 'Not Available')
