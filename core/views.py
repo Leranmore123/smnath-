@@ -968,7 +968,7 @@ def generate_pan_card_pdf(pan_number, name, father_name, dob, photo_path=None, s
     return ContentFile(buffer.getvalue(), name=file_name)
 
 
-def generate_voter_card_pdf(epic_no, name, father_name, gender, age, state, district, assembly, polling_station):
+def generate_voter_card_pdf(epic_no, name, father_name, gender, age, state, district, assembly='Assembly Constituency', polling_station='Polling Station', dob='', house_no='', area='', relation_type='F'):
     from reportlab.pdfgen import canvas
     from reportlab.lib.colors import HexColor
     from io import BytesIO
@@ -977,6 +977,12 @@ def generate_voter_card_pdf(epic_no, name, father_name, gender, age, state, dist
     buffer = BytesIO()
     p = canvas.Canvas(buffer, pagesize=(350, 220))
     
+    rel_label = "Father Name:"
+    if str(relation_type).upper() == 'M':
+        rel_label = "Mother Name:"
+    elif str(relation_type).upper() == 'H':
+        rel_label = "Husband Name:"
+
     # FRONT SIDE
     p.setFillColor(HexColor("#f4f4f4"))
     p.rect(10, 10, 330, 200, fill=True, stroke=True)
@@ -1003,19 +1009,24 @@ def generate_voter_card_pdf(epic_no, name, father_name, gender, age, state, dist
     p.drawString(20, 127, str(name).upper())
     
     p.setFont("Helvetica-Bold", 6)
-    p.drawString(20, 112, "Relation Name:")
+    p.drawString(20, 112, rel_label)
     p.setFont("Helvetica-Bold", 8)
     p.drawString(20, 102, str(father_name).upper())
     
     p.setFont("Helvetica-Bold", 6)
     p.drawString(20, 87, "Gender:")
-    p.setFont("Helvetica-Bold", 8)
+    p.setFont("Helvetica-Bold", 7.5)
     p.drawString(20, 77, str(gender).upper())
     
     p.setFont("Helvetica-Bold", 6)
-    p.drawString(120, 87, "Age:")
-    p.setFont("Helvetica-Bold", 8)
-    p.drawString(120, 77, str(age))
+    p.drawString(90, 87, "Age:")
+    p.setFont("Helvetica-Bold", 7.5)
+    p.drawString(90, 77, str(age))
+
+    p.setFont("Helvetica-Bold", 6)
+    p.drawString(150, 87, "D.O.B:")
+    p.setFont("Helvetica-Bold", 7.5)
+    p.drawString(150, 77, str(dob) if dob else 'Not Available')
     
     # Photo Placeholder
     p.setFillColor(HexColor("#dddddd"))
@@ -1033,14 +1044,15 @@ def generate_voter_card_pdf(epic_no, name, father_name, gender, age, state, dist
     # Details on back
     p.setFillColor(HexColor("#000000"))
     p.setFont("Helvetica-Bold", 6)
-    p.drawString(20, 175, "Assembly Constituency:")
+    p.drawString(20, 175, "Address / House No:")
     p.setFont("Helvetica", 7)
-    p.drawString(20, 165, str(assembly).upper())
+    addr_line = f"{house_no}, {area}".strip(', ') if house_no or area else f"{district}, {state}"
+    p.drawString(20, 165, addr_line.upper()[:50])
     
     p.setFont("Helvetica-Bold", 6)
-    p.drawString(20, 145, "Part No. & Name:")
+    p.drawString(20, 145, "Area / Locality:")
     p.setFont("Helvetica", 7)
-    p.drawString(20, 135, str(polling_station).upper())
+    p.drawString(20, 135, str(area or district).upper())
     
     p.setFont("Helvetica-Bold", 6)
     p.drawString(20, 115, "State:")
@@ -1050,7 +1062,7 @@ def generate_voter_card_pdf(epic_no, name, father_name, gender, age, state, dist
     p.setFont("Helvetica-Bold", 6)
     p.drawString(150, 115, "District:")
     p.setFont("Helvetica", 7)
-    p.drawString(150, 105, str(district).upper())
+    p.drawString(150, 105, str(district or area).upper())
     
     # Signature of ERO
     p.rect(250, 45, 75, 25, fill=False, stroke=True)
@@ -1706,11 +1718,18 @@ def apply_service(request, service_slug):
                         father = api_data.get('father_name', 'Not Available')
                         gender = api_data.get('gender', 'Male')
                         age = api_data.get('age', '35')
-                        state = api_data.get('state', 'Karnataka')
-                        district = api_data.get('district', 'Bengaluru')
-                        assembly = api_data.get('assembly', 'Assembly Const 10')
-                        station = api_data.get('polling_station', 'Polling Station 5')
-                        result_file = generate_voter_card_pdf(epic_no, name, father, gender, age, state, district, assembly, station)
+                        dob = api_data.get('dob', '')
+                        house_no = api_data.get('house_no', '')
+                        area = api_data.get('area', '')
+                        state = api_data.get('state', 'Not Available')
+                        district = api_data.get('district') or area or 'Not Available'
+                        assembly = api_data.get('assembly', 'Assembly Constituency')
+                        station = api_data.get('polling_station', 'Polling Station')
+                        relation_type = api_data.get('relation_type', 'F')
+                        result_file = generate_voter_card_pdf(
+                            epic_no, name, father, gender, age, state, district, assembly, station,
+                            dob=dob, house_no=house_no, area=area, relation_type=relation_type
+                        )
                     elif service.slug in ['dlallindia', 'dl_karnataka']:
                         dl_no = api_data.get('dl_number', 'KA01123456789')
                         name = api_data.get('name', 'Not Available')
