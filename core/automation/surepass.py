@@ -62,6 +62,16 @@ def call_surepass_api(endpoint, payload):
             return res_data.get('data', {})
         else:
             err_msg = res_data.get('message') or "Surepass API query returned unsuccessful response."
+            # If IP not whitelisted, dynamically fetch server's outbound public IP to help the user configure it
+            if "ip" in err_msg.lower() or "whitelist" in err_msg.lower() or res_data.get('message_code') == 'ip_not_whitelisted':
+                try:
+                    with urllib.request.urlopen("https://api.ipify.org?format=json", timeout=5) as ip_res:
+                        ip_info = json.loads(ip_res.read().decode('utf-8'))
+                        actual_ip = ip_info.get('ip')
+                        if actual_ip:
+                            err_msg += f" (Your Server Outbound Public IP is: {actual_ip})"
+                except Exception:
+                    pass
             LAST_ERROR = err_msg
             print(f"Surepass API error response: {res_data}")
             return None
