@@ -1832,8 +1832,14 @@ def apply_service(request, service_slug):
                         result_file = generate_vehicle_rc_pdf(reg_no, owner, model, fuel, reg_date, chassis, engine, ins)
                     else:
                         result_file = generate_mock_pdf(service.name, api_data)
+                    
                     app.result_file.save(result_file.name, result_file)
                     app.admin_notes = "Retrieved via Live Surepass.io Verification API."
+                    app.status = 'COMPLETED'
+                    app.save()
+                    messages.success(request, f"Service '{service.name}' applied and processed instantly! Balance deducted: ₹{service.cost}.")
+                    return redirect('transaction_history')
+                else:
                     err_reason = getattr(surepass, 'LAST_ERROR', None) or "Surepass API query failed."
                     profile.wallet_balance += service.cost
                     profile.save()
@@ -1843,10 +1849,6 @@ def apply_service(request, service_slug):
                     app.save()
                     messages.error(request, f"Failed to verify details for '{service.name}': {err_reason}. Your wallet balance has been refunded.")
                     return redirect('transaction_history')
-            
-            app.status = 'COMPLETED'
-            app.save()
-            messages.success(request, f"Service '{service.name}' applied and processed instantly! Balance deducted: ₹{service.cost}.")
         else:
             # Trigger government submission webhook for automation bot/agent
             from .automation import webhooks
