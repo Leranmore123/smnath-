@@ -139,6 +139,7 @@ def verify_voter_card(epic_number, full_name=None, dob=None):
         # Fallback to simple query if additional details query failed
         data = call_surepass_api("api/v1/voter-id/voter-id", {"id_number": clean_epic})
 
+    if data:
         return {
             'epic_no': data.get('epic_no') or clean_epic,
             'name': data.get('name', 'Not Available'),
