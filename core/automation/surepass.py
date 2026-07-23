@@ -82,19 +82,40 @@ def call_surepass_api(endpoint, payload):
             err_json = json.loads(err_body)
             msg_code = err_json.get('message_code', '')
             api_msg = err_json.get('message', '')
-            if msg_code == 'ip_not_whitelisted':
+            
+            # Write to debug log file
+            try:
+                with open("surepass_debug.log", "a") as f_log:
+                    f_log.write(f"HTTPError: {e.code} | body: {err_body} | endpoint: {endpoint}\n")
+            except Exception:
+                pass
+
+            if msg_code == 'ip_not_whitelisted' or (api_msg and ("whitelist" in api_msg.lower() or "ip" in api_msg.lower())):
                 err_msg = "Server IP not whitelisted on Surepass Dashboard."
+                try:
+                    with urllib.request.urlopen("https://api.ipify.org?format=json", timeout=5) as ip_res:
+                        ip_info = json.loads(ip_res.read().decode('utf-8'))
+                        actual_ip = ip_info.get('ip')
+                        if actual_ip:
+                            err_msg += f" (Your Server Outbound Public IP is: {actual_ip})"
+                except Exception:
+                    pass
             elif msg_code == 'invalid_token':
                 err_msg = "Invalid Surepass Token in .env."
             elif api_msg:
                 err_msg = api_msg
             else:
                 err_msg = err_body
-        except Exception:
-            pass
+        except Exception as ex:
+            err_msg = f"HTTP Error {e.code}: {str(ex)}"
         LAST_ERROR = err_msg
         return None
     except Exception as e:
+        try:
+            with open("surepass_debug.log", "a") as f_log:
+                f_log.write(f"General Exception: {str(e)} | endpoint: {endpoint}\n")
+        except Exception:
+            pass
         LAST_ERROR = f"API Connection Error: {str(e)}"
         return None
 
